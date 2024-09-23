@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 
 class Layer(ABC):
+    @abstractmethod
     def __init__(self):
         self.input = None
         self.output = None

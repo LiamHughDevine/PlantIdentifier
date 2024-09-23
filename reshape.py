@@ -3,7 +3,9 @@ from layer import Layer
 
 
 class Reshape(Layer):
-    def __init__(self, input_shape: int, output_shape: int):
+    def __init__(
+        self, input_shape: tuple[int, int, int], output_shape: tuple[int, int]
+    ):
         self.input_shape = input_shape
         self.output_shape = output_shape
 
