@@ -11,9 +11,13 @@ class NeuralNetwork(ABC):
     def __init__(self):
         self.layers: MutableSequence[Layer] = []
 
-    def load_weights(self, file_name: str) -> None:
-        with open(file_name, "rb") as file:
-            self.layers = pickle.load(file)
+    def load_weights(self, file_name: str) -> bool:
+        try:
+            with open(file_name, "rb") as file:
+                self.layers = pickle.load(file)
+                return True
+        except OSError:
+            return False
 
     def save_weights(self, file_name: str) -> None:
         with open(file_name, "wb") as file:
