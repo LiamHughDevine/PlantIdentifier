@@ -1,13 +1,12 @@
 import numpy as np
 import pickle
-from abc import ABC, abstractmethod
+from abc import ABC
 from collections.abc import MutableSequence
 from layer import Layer
 from typing import Callable
 
 
 class NeuralNetwork(ABC):
-    @abstractmethod
     def __init__(self):
         self.layers: MutableSequence[Layer] = []
 
