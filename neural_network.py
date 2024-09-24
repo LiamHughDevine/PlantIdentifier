@@ -59,6 +59,7 @@ class NeuralNetwork(ABC):
             print(f"{e + 1}/{epochs}, error={error}")
 
     Batch = Tuple[torch.Tensor, torch.Tensor]
+
     def train_data_loader(
         self,
         image_folder: ImageFolder,
@@ -67,26 +68,10 @@ class NeuralNetwork(ABC):
         loss_function: Callable,
         loss_function_prime: Callable,
     ) -> None:
-        """
-        all_labels = []
-        for _, labels in data_loader:
-            print("TEST")
-            all_labels.append(labels)
-        print("TEST2")
-        all_labels = torch.cat(all_labels)
-        unique_labels = torch.unique(all_labels)
-        num_labels = len(unique_labels)
-        """
-
         limit = 100
         data_loader = DataLoader(image_folder, batch_size=limit, shuffle=True)
         unique_labels = image_folder.classes
         num_labels = len(unique_labels)
-        label_mapping = {}
-        for i in range(num_labels):
-            label_mapping[unique_labels[i]] = i
-
-        print(label_mapping)
 
         for e in range(epochs):
             error = 0
@@ -95,15 +80,10 @@ class NeuralNetwork(ABC):
                 for i in range(images.size(0)):
                     image = images[i]
                     label = labels[i].item()
-
-                    print(image)
-                    print(label)
                     label = to_categorical(label, num_labels)
-                    label.reshape(len(label), 1)
-                    print(label)
+                    label = label.reshape(num_labels, 1)
 
                     output = self.forward(image)
-                    print(output)
 
                     error += loss_function(label, output)
                     grad = loss_function_prime(label, output)
