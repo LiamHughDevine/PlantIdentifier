@@ -29,7 +29,7 @@ def main():
     epochs = 20
     learning_rate = 0.1
 
-    network.train(
+    network.train_ndarray(
         x_train,
         y_train,
         epochs,
