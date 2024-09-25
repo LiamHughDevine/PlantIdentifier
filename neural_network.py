@@ -68,15 +68,19 @@ class NeuralNetwork(ABC):
         loss_function: Callable,
         loss_function_prime: Callable,
     ) -> None:
-        limit = 100
-        data_loader = DataLoader(image_folder, batch_size=limit, shuffle=True)
+        limit = 1
+        data_loader = DataLoader(image_folder, batch_size=limit, shuffle=False)
         unique_labels = image_folder.classes
         num_labels = len(unique_labels)
 
         for e in range(epochs):
+            counter = 0
             error = 0
             for batch_idx, (images, labels) in enumerate(data_loader):
-                _ = batch_idx
+                if counter == 5:
+                    break
+                counter += 1
+                print(f"batch: {batch_idx}")
                 for i in range(images.size(0)):
                     image = images[i]
                     label = labels[i].item()
@@ -87,8 +91,15 @@ class NeuralNetwork(ABC):
 
                     error += loss_function(label, output)
                     grad = loss_function_prime(label, output)
-
                     self.__backward(grad, learning_rate)
+                    print(f"pred: {np.argmax(output)}, true: {np.argmax(label)}")
+                    print(output)
+                    print(label)
+                    print(output[np.argmax(output)])
+                    print()
 
-            error /= len(data_loader)
+            #error /= len(data_loader)
+            error /= counter
             print(f"{e + 1}/{epochs}, error={error}")
+
+

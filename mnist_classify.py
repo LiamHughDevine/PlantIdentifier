@@ -21,6 +21,7 @@ def main():
         print("Please input a valid image")
         return
 
+    print(type(image))
     width = 28
     height = 28
     image = image.resize((width, height))

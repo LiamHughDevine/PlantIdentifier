@@ -18,9 +18,11 @@ class PlantNet(ImageFolder):
 
 
 def main(args):
+    target_resolution = 256
+    dense_nodes = 200
     transform = transforms.Compose(
         [
-            transforms.Resize((600, 600)),
+            transforms.Resize((target_resolution, target_resolution)),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
@@ -28,10 +30,11 @@ def main(args):
     training_data = PlantNet(args.dataset, "train", transform=transform)
 
     num_classes = len(training_data.classes)
-    network = ConvolutionalNeuralNetwork(2, 600, 3, 5, 200, num_classes)
+    network = ConvolutionalNeuralNetwork(2, target_resolution, 3, 5, dense_nodes, num_classes)
+    network.load_weights("plant_network.pkl")
 
-    epochs = 20
-    learning_rate = 0.1
+    epochs = 40
+    learning_rate = 10
 
     network.train_data_loader(
         training_data,
@@ -40,6 +43,8 @@ def main(args):
         binary_cross_entropy,
         binary_cross_entropy_prime,
     )
+
+    network.save_weights("plant_network.pkl")
 
 
 if __name__ == "__main__":

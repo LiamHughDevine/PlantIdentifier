@@ -3,6 +3,8 @@ from activation import Activation
 
 
 def sigmoid(x: np.ndarray) -> np.ndarray:
+    bounds = (-10, 10)
+    x = np.clip(x, bounds[0], bounds[1])
     return 1 / (1 + np.exp(-x))
 
 
