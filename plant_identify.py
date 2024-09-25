@@ -41,6 +41,7 @@ def main(args):
         print(f"Prediction: {prediction.single_prediction}")
         print(f"Confidence: {prediction.confidence}")
         print(f"Full prediction: {prediction.full_prediction}")
+        print(f"Plant: {prediction.plant_name}")
     except NoExistingNeuralNetwork as _:
         print("Please first train the network")
 
