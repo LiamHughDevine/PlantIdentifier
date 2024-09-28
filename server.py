@@ -17,7 +17,7 @@ def classify(network: NeuralNetwork, image: np.ndarray) -> Prediction:
     return Prediction(single_prediction, confidence, prediction)
 
 
-def main(args):
+def main():
     network = NeuralNetwork()
     if not network.load_weights("model.mdl"):
         raise NoExistingNeuralNetwork()
@@ -26,8 +26,6 @@ def main(args):
     server_ip = "192.168.0.50"
     server_port = 2222
     server_address = (server_ip, server_port)
-    message_from_server = "name"
-    bytes_to_send = message_from_server.encode("utf-8")
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     server_socket.bind(server_address)
     print("Server is running")
@@ -53,10 +51,10 @@ def main(args):
         # print(f"Client address: {client_address[0]}")
         # server_socket.sendto(bytes_to_send, client_address)
 
-        with open("received_image.jpg", "wb") as file:
+        image_name = "received_image.jpg"
+        with open(image_name, "wb") as file:
             file.write(data)
 
-        image_name = args.image_name
         image = None
         try:
             image = Image.open(image_name)
@@ -72,7 +70,7 @@ def main(args):
         image_arr = np.array(image)
 
         try:
-            prediction = classify(image_arr)
+            prediction = classify(network, image_arr)
             print(f"Prediction: {prediction.single_prediction}")
             print(f"Confidence: {prediction.confidence}")
             print(f"Full prediction: {prediction.full_prediction}")
