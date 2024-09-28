@@ -1,5 +1,16 @@
 import socket
 
+def send_file(client_socket, server_address, buffer_size, file):
+        data = file.read()
+        while True:
+            packet = bytes(data[:buffer_size])
+            if not packet:
+                return
+            client_socket.sendto(packet, server_address)
+            client_socket.recv(4)
+            data = data[buffer_size:]
+
+
 def main():
     buffer_size = 1024
     server_ip = "192.168.0.50"
@@ -9,22 +20,10 @@ def main():
 
     try:
         with open("PlantTestImage1.jpg", "rb") as file:
-            print("Image loaded")
-            data = file.read()
-            while True:
-                print(len(data))
-                packet = bytes(data[:buffer_size])
-                if not packet:
-                    break
-                client_socket.sendto(packet, server_address)
-                print("Packet sent")
-                client_socket.recv(4)
-                data = data[buffer_size:]
-
+            send_file(client_socket, server_address, buffer_size, file)
+            print("Image sent")
     except OSError:
         print("Please input a valid image")
-    return
-            
 
 
 if __name__ == "__main__":

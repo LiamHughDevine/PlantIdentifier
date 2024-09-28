@@ -5,16 +5,37 @@ from PIL import Image
 from prediction import Prediction
 
 
+image_size = 128
+
+
 class NoExistingNeuralNetwork(Exception):
     pass
 
 
 def classify(network: NeuralNetwork, image: np.ndarray) -> Prediction:
-    image = image.reshape(3, 128, 128)
+    image = image.reshape(3, image_size, image_size)
     prediction = network.forward(image)
     single_prediction = np.argmax(prediction)
     confidence = round(prediction[single_prediction][0] * 100, 2)
     return Prediction(single_prediction, confidence, prediction)
+
+
+def receive_file(server_socket, buffer_size) -> bytes:
+    send_encode = "SEND".encode("utf-8")
+    data = bytes()
+    receiving = True
+    while receiving:
+        try:
+            packet, client_address = server_socket.recvfrom(buffer_size)
+            server_socket.sendto(send_encode, client_address)
+        except Exception as error:
+            receiving = False
+            packet = bytes()
+            print(error)
+        data += bytes(packet)
+        if len(packet) < buffer_size:
+            receiving = False
+    return data
 
 
 def main():
@@ -30,23 +51,9 @@ def main():
     server_socket.bind(server_address)
     print("Server is running")
 
-    send_encode = "SEND".encode("utf-8")
     while True:
-        data = bytes()
-        receiving = True
-        while receiving:
-            try:
-                packet, client_address = server_socket.recvfrom(buffer_size)
-                print("Packet received")
-                server_socket.sendto(send_encode, client_address)
-            except Exception as error:
-                receiving = False
-                packet = bytes()
-                print(error)
-            data += bytes(packet)
-            if len(packet) < buffer_size:
-                receiving = False
-        print(data)
+        data = receive_file(server_socket, buffer_size)
+        print("Image received")
 
         image_name = "received_image.jpg"
         with open(image_name, "wb") as file:
@@ -59,9 +66,7 @@ def main():
             print("Please input a valid image")
             return
 
-        width = 128
-        height = 128
-        image = image.resize((width, height))
+        image = image.resize((image_size, image_size))
         image = image.convert("RGB")
 
         image_arr = np.array(image)
