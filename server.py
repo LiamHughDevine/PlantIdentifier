@@ -59,8 +59,8 @@ def main():
             print("Please input a valid image")
             return
 
-        width = 256
-        height = 256
+        width = 128
+        height = 128
         image = image.resize((width, height))
         image = image.convert("RGB")
 
