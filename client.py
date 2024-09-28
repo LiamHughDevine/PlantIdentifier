@@ -9,12 +9,14 @@ def main():
 
     try:
         with open("TestImage1.jpg", "rb") as file:
+            print("Image loaded")
             data = file.read()
             while True:
                 packet = bytes(data[:buffer_size])
                 if not packet:
                     break
                 client_socket.sendto(packet, server_address)
+                print("Packet sent")
                 client_socket.recv(4)
                 data = data[:buffer_size]
 
@@ -22,16 +24,6 @@ def main():
         print("Please input a valid image")
     return
             
-
-    """
-    message_from_client = "Hello from client"
-    bytes_to_send = message_from_client.encode("utf-8")
-    data, address = udp_client.recvfrom(buffer_size)
-    data = data.decode("utf-8")
-    print(f"Data from server: {data}")
-    print(f"Server IP address: {address[0]}")
-    print(f"Server port: {address[1]}")
-    """
 
 
 if __name__ == "__main__":

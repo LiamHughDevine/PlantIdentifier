@@ -19,7 +19,7 @@ def classify(network: NeuralNetwork, image: np.ndarray) -> Prediction:
 
 def main():
     network = NeuralNetwork()
-    if not network.load_weights("model.mdl"):
+    if not network.load_weights("plant_network.pkl"):
         raise NoExistingNeuralNetwork()
 
     buffer_size = 1024
@@ -37,6 +37,7 @@ def main():
         while receiving:
             try:
                 packet, client_address = server_socket.recvfrom(buffer_size)
+                print("Packet received")
                 server_socket.sendto(send_encode, client_address)
             except Exception as error:
                 receiving = False
@@ -45,11 +46,7 @@ def main():
             data += bytes(packet)
             if len(packet) < buffer_size:
                 receiving = False
-        # data, client_address = server_socket.recvfrom(buffer_size)
-        # data = data.decode("JFIF")
         print(data)
-        # print(f"Client address: {client_address[0]}")
-        # server_socket.sendto(bytes_to_send, client_address)
 
         image_name = "received_image.jpg"
         with open(image_name, "wb") as file:
