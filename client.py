@@ -8,17 +8,18 @@ def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     try:
-        with open("TestImage1.jpg", "rb") as file:
+        with open("PlantTestImage1.jpg", "rb") as file:
             print("Image loaded")
             data = file.read()
             while True:
+                print(len(data))
                 packet = bytes(data[:buffer_size])
                 if not packet:
                     break
                 client_socket.sendto(packet, server_address)
                 print("Packet sent")
                 client_socket.recv(4)
-                data = data[:buffer_size]
+                data = data[buffer_size:]
 
     except OSError:
         print("Please input a valid image")

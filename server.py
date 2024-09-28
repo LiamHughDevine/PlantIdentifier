@@ -10,7 +10,7 @@ class NoExistingNeuralNetwork(Exception):
 
 
 def classify(network: NeuralNetwork, image: np.ndarray) -> Prediction:
-    image = image.reshape(3, 256, 256)
+    image = image.reshape(3, 128, 128)
     prediction = network.forward(image)
     single_prediction = np.argmax(prediction)
     confidence = round(prediction[single_prediction][0] * 100, 2)
