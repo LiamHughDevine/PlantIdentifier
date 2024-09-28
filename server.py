@@ -5,9 +5,6 @@ from PIL import Image
 from prediction import Prediction
 
 
-
-
-
 class NoExistingNeuralNetwork(Exception):
     pass
 
@@ -26,8 +23,8 @@ def main(args):
         raise NoExistingNeuralNetwork()
 
     buffer_size = 1024
-    server_port = 2222
     server_ip = "192.168.0.50"
+    server_port = 2222
     server_address = (server_ip, server_port)
     message_from_server = "name"
     bytes_to_send = message_from_server.encode("utf-8")
@@ -50,11 +47,11 @@ def main(args):
             data += bytes(packet)
             if len(packet) < buffer_size:
                 receiving = False
-        #data, client_address = server_socket.recvfrom(buffer_size)
-        #data = data.decode("JFIF")
+        # data, client_address = server_socket.recvfrom(buffer_size)
+        # data = data.decode("JFIF")
         print(data)
-        #print(f"Client address: {client_address[0]}")
-        #server_socket.sendto(bytes_to_send, client_address)
+        # print(f"Client address: {client_address[0]}")
+        # server_socket.sendto(bytes_to_send, client_address)
 
         with open("received_image.jpg", "wb") as file:
             file.write(data)
