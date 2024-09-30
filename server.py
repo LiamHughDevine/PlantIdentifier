@@ -1,11 +1,20 @@
 import numpy as np
 import socket
+import threading
+from io import BytesIO
 from neural_network import NeuralNetwork
 from PIL import Image
 from prediction import Prediction
 
 
-image_size = 128
+IMAGE_SIZE = 128
+BUFFER_SIZE = 4096
+SERVER_IP = socket.gethostbyname(socket.gethostname())
+SERVER_PORT = 2222
+SERVER_ADDRESS = (SERVER_IP, SERVER_PORT)
+FORMAT = "utf-8"
+IDENTIFY = "!IDENTIFY"
+SEND = "!SEND"
 
 
 class NoExistingNeuralNetwork(Exception):
@@ -13,81 +22,75 @@ class NoExistingNeuralNetwork(Exception):
 
 
 def classify(network: NeuralNetwork, image: np.ndarray) -> Prediction:
-    image = image.reshape(3, image_size, image_size)
+    image = image.reshape(3, IMAGE_SIZE, IMAGE_SIZE)
     prediction = network.forward(image)
     single_prediction = np.argmax(prediction)
     confidence = round(prediction[single_prediction][0] * 100, 2)
     return Prediction(single_prediction, confidence, prediction)
 
 
-def receive_file(server_socket, client_address, buffer_size) -> bytes:
-    send_encode = "SEND".encode("utf-8")
-    server_socket.sendto(send_encode, client_address)
+def receive_file(connection) -> bytes:
+    send_encode = SEND.encode(FORMAT)
     data = bytes()
     receiving = True
     while receiving:
         try:
-            packet, new_client_address = server_socket.recvfrom(buffer_size)
-            if client_address != new_client_address:
-                continue
-            server_socket.sendto(send_encode, client_address)
+            packet = connection.recv(BUFFER_SIZE)
+            connection.send(send_encode)
         except Exception as error:
             receiving = False
             packet = bytes()
             print(error)
         data += bytes(packet)
-        if len(packet) < buffer_size:
+        if len(packet) < BUFFER_SIZE:
             receiving = False
     return data
 
+def handle_client(connection, network: NeuralNetwork):
+    _ = connection.recv(0)
+    message = connection.recv(BUFFER_SIZE)
+    message = message.decode(FORMAT)
+    if message != "!IDENTIFY":
+        return
+    data = receive_file(connection)
+    print("Image received")
+
+    image = Image.open(BytesIO(data))
+    image = image.resize((IMAGE_SIZE, IMAGE_SIZE))
+    image = image.convert("RGB")
+
+    image_arr = np.array(image)
+
+    try:
+        prediction = classify(network, image_arr)
+        print(f"Prediction: {prediction.single_prediction}")
+        print(f"Confidence: {prediction.confidence}")
+        print(f"Full prediction: {prediction.full_prediction}")
+        print(f"Plant: {prediction.plant_name}")
+        plant_name_encode = prediction.plant_name.encode("utf-8")
+        connection.send(plant_name_encode)
+    except NoExistingNeuralNetwork as _:
+        print("Please first train the network")
+
+    connection.close()
 
 def main():
     network = NeuralNetwork()
     if not network.load_weights("plant_network.pkl"):
         raise NoExistingNeuralNetwork()
 
-    buffer_size = 1024
-    server_ip = "192.168.0.50"
-    server_port = 2222
-    server_address = (server_ip, server_port)
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_socket.bind(server_address)
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(SERVER_ADDRESS)
     print("Server is running")
 
+    server.listen()
+
     while True:
-        message, client_address = server_socket.recvfrom(buffer_size)
-        message = message.decode("utf-8")
-        if message != "IDENTIFY":
-            continue
-        data = receive_file(server_socket, client_address, buffer_size)
-        print("Image received")
+        connection, _ = server.accept()
+        thread = threading.Thread(target=handle_client, args=(connection, network))
+        thread.start()
+        print(f"Active connections: {threading.activeCount() - 1}")
 
-        image_name = "received_image.jpg"
-        with open(image_name, "wb") as file:
-            file.write(data)
-
-        image = None
-        try:
-            image = Image.open(image_name)
-        except OSError:
-            print("Please input a valid image")
-            return
-
-        image = image.resize((image_size, image_size))
-        image = image.convert("RGB")
-
-        image_arr = np.array(image)
-
-        try:
-            prediction = classify(network, image_arr)
-            print(f"Prediction: {prediction.single_prediction}")
-            print(f"Confidence: {prediction.confidence}")
-            print(f"Full prediction: {prediction.full_prediction}")
-            print(f"Plant: {prediction.plant_name}")
-            plant_name_encode = prediction.plant_name.encode("utf-8")
-            server_socket.sendto(plant_name_encode, client_address)
-        except NoExistingNeuralNetwork as _:
-            print("Please first train the network")
 
 
 if __name__ == "__main__":
