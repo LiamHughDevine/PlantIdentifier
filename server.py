@@ -20,13 +20,16 @@ def classify(network: NeuralNetwork, image: np.ndarray) -> Prediction:
     return Prediction(single_prediction, confidence, prediction)
 
 
-def receive_file(server_socket, buffer_size) -> bytes:
+def receive_file(server_socket, client_address, buffer_size) -> bytes:
     send_encode = "SEND".encode("utf-8")
+    server_socket.sendto(send_encode, client_address)
     data = bytes()
     receiving = True
     while receiving:
         try:
-            packet, client_address = server_socket.recvfrom(buffer_size)
+            packet, new_client_address = server_socket.recvfrom(buffer_size)
+            if client_address != new_client_address:
+                continue
             server_socket.sendto(send_encode, client_address)
         except Exception as error:
             receiving = False
@@ -52,7 +55,11 @@ def main():
     print("Server is running")
 
     while True:
-        data = receive_file(server_socket, buffer_size)
+        message, client_address = server_socket.recvfrom(buffer_size)
+        message = message.decode("utf-8")
+        if message != "IDENTIFY":
+            continue
+        data = receive_file(server_socket, client_address, buffer_size)
         print("Image received")
 
         image_name = "received_image.jpg"
@@ -77,6 +84,8 @@ def main():
             print(f"Confidence: {prediction.confidence}")
             print(f"Full prediction: {prediction.full_prediction}")
             print(f"Plant: {prediction.plant_name}")
+            plant_name_encode = prediction.plant_name.encode("utf-8")
+            server_socket.sendto(plant_name_encode, client_address)
         except NoExistingNeuralNetwork as _:
             print("Please first train the network")
 
