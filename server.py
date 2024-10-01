@@ -8,7 +8,7 @@ from prediction import Prediction
 
 
 IMAGE_SIZE = 128
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 1024
 SERVER_IP = "192.168.0.50"
 SERVER_PORT = 2222
 SERVER_ADDRESS = (SERVER_IP, SERVER_PORT)
@@ -35,8 +35,8 @@ def receive_file(connection) -> bytes:
     receiving = True
     while receiving:
         try:
-            packet = connection.recv(BUFFER_SIZE)
             connection.send(send_encode)
+            packet = connection.recv(BUFFER_SIZE)
         except Exception as error:
             receiving = False
             packet = bytes()
@@ -89,7 +89,7 @@ def main():
         connection, _ = server.accept()
         thread = threading.Thread(target=handle_client, args=(connection, network))
         thread.start()
-        print(f"Active connections: {threading.activeCount() - 1}")
+        print(f"Active connections: {threading.active_count() - 1}")
 
 
 
