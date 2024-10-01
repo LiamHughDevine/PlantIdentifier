@@ -8,14 +8,14 @@ FORMAT = "utf-8"
 IDENTIFY = "!IDENTIFY"
 SEND = "!SEND"
 
-def send_data(client, data):
+
+def send_data(client: socket.socket, data: bytes):
     while True:
         client.recv(5)
         packet = bytes(data[:BUFFER_SIZE])
         if not packet:
             return
         client.send(packet)
-        print("Sent packet")
         data = data[BUFFER_SIZE:]
 
 
@@ -24,9 +24,9 @@ def main():
     client.connect(SERVER_ADDRESS)
     identify_encode = IDENTIFY.encode("utf-8")
     client.send(identify_encode)
-    print("TEST")
+    print("Image Sending")
 
-    data = None
+    data = bytes()
     try:
         with open("PlantTestImage1.jpg", "rb") as file:
             data = file.read()

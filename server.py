@@ -29,7 +29,7 @@ def classify(network: NeuralNetwork, image: np.ndarray) -> Prediction:
     return Prediction(single_prediction, confidence, prediction)
 
 
-def receive_file(connection) -> bytes:
+def receive_file(connection: socket.socket) -> bytes:
     send_encode = SEND.encode(FORMAT)
     data = bytes()
     receiving = True
@@ -46,7 +46,8 @@ def receive_file(connection) -> bytes:
             receiving = False
     return data
 
-def handle_client(connection, network: NeuralNetwork):
+
+def handle_client(connection: socket.socket, network: NeuralNetwork):
     _ = connection.recv(0)
     message = connection.recv(BUFFER_SIZE)
     message = message.decode(FORMAT)
@@ -74,6 +75,7 @@ def handle_client(connection, network: NeuralNetwork):
 
     connection.close()
 
+
 def main():
     network = NeuralNetwork()
     if not network.load_weights("plant_network.pkl"):
@@ -90,7 +92,6 @@ def main():
         thread = threading.Thread(target=handle_client, args=(connection, network))
         thread.start()
         print(f"Active connections: {threading.active_count() - 1}")
-
 
 
 if __name__ == "__main__":
