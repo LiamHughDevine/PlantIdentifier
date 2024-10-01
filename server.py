@@ -9,7 +9,7 @@ from prediction import Prediction
 
 IMAGE_SIZE = 128
 BUFFER_SIZE = 4096
-SERVER_IP = socket.gethostbyname(socket.gethostname())
+SERVER_IP = "192.168.0.50"
 SERVER_PORT = 2222
 SERVER_ADDRESS = (SERVER_IP, SERVER_PORT)
 FORMAT = "utf-8"
