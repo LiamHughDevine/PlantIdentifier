@@ -48,11 +48,18 @@ def receive_file(connection: socket.socket) -> bytes:
 
 
 def handle_client(connection: socket.socket, network: NeuralNetwork):
-    _ = connection.recv(0)
-    message = connection.recv(BUFFER_SIZE)
-    message = message.decode(FORMAT)
-    if message != "!IDENTIFY":
-        return
+    identify_sent = False
+    counter = 0
+    while not identify_sent:
+        message = connection.recv(BUFFER_SIZE)
+        message = message.decode(FORMAT)
+        if message == "!IDENTIFY":
+            identify_sent = True
+        counter += 1
+        if counter > 10:
+            connection.close()
+            return
+
     data = receive_file(connection)
     print("Image received")
 
