@@ -14,7 +14,7 @@ SERVER_PORT = 2222
 SERVER_ADDRESS = (SERVER_IP, SERVER_PORT)
 FORMAT = "utf-8"
 IDENTIFY = "!IDENTIFY"
-SEND = "!SEND"
+SEND = "!"
 
 
 class NoExistingNeuralNetwork(Exception):
@@ -53,6 +53,7 @@ def handle_client(connection: socket.socket, network: NeuralNetwork):
     while not identify_sent:
         message = connection.recv(BUFFER_SIZE)
         message = message.decode(FORMAT)
+        message = message.strip()
         if message == "!IDENTIFY":
             identify_sent = True
         counter += 1
