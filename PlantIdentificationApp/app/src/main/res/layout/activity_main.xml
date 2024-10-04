@@ -8,13 +8,22 @@
     android:background="@color/light_primary"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/plant_background" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/light_primary"
+        android:alpha="0.92" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cvTopBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        app:cardCornerRadius="28dp"
-        android:layout_marginTop="-20dp">
+        android:layout_alignParentTop="true" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,10 +53,11 @@
         android:contentDescription="@string/plant_picture" />
 
     <Button
-        android:id="@+id/btnTakePhoto"
+        android:id="@+id/btnSelectPhoto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/take_photo_button"
+        android:text="@string/select_photo_button"
+        android:textSize="24sp"
         android:textColor="@color/light_secondary"
         android:backgroundTint="@color/white"
         android:layout_centerHorizontal="true"
@@ -60,10 +70,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/identify_plant_button"
+        android:textSize="24sp"
         android:textColor="@color/light_secondary"
         android:backgroundTint="@color/white"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/btnTakePhoto"
+        android:layout_below="@+id/btnSelectPhoto"
         android:layout_marginTop="20dp" />
 
     <androidx.cardview.widget.CardView

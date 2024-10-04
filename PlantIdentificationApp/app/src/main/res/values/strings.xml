@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PlantIdentificationApp</string>
     <string name="plant_identification">Plant Identification</string>
-    <string name="take_photo_button">Take Photo</string>
+    <string name="select_photo_button">Select Photo</string>
     <string name="identify_plant_button">Identify Plant</string>
     <string name="plant_picture">Plant picture to be identified</string>
     <string name="unknown_plant">Please Select Plant to Identify</string>

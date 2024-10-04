@@ -1,4 +1,4 @@
-    package com.ldevine.plantidentificationapp;
+package com.ldevine.plantidentificationapp;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,32 +11,25 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.content.Intent;
 import android.widget.TextView;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     ExecutorService executorService;
     ImageView ivPlant;
-    Button btnTakePhoto;
+    Button btnSelectPhoto;
     Button btnIdentifyPlant;
     TextView tvPlantName;
     Uri plantToIdentify;
@@ -74,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         ivPlant = findViewById(R.id.ivPlant);
 
-        btnTakePhoto = findViewById(R.id.btnTakePhoto);
-        btnTakePhoto.setOnClickListener(v -> getPicture());
+        btnSelectPhoto = findViewById(R.id.btnSelectPhoto);
+        btnSelectPhoto.setOnClickListener(v -> getPicture());
 
         btnIdentifyPlant = findViewById(R.id.btnIdentifyPlant);
         btnIdentifyPlant.setOnClickListener(v -> executorService.execute(() -> {
@@ -94,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String identifyPlant(Uri image) {
-        try {
-            Socket client = new Socket(SERVER_IP, SERVER_PORT);
+        if (image == null) {
+            return "Please select a photo";
+        }
+        try (Socket client = new Socket(SERVER_IP, SERVER_PORT)){
             OutputStream binOut = client.getOutputStream();
             PrintWriter textOut = new PrintWriter(new OutputStreamWriter(binOut), true);
             InputStream in = client.getInputStream();
@@ -108,25 +103,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void sendPlant(Uri image, OutputStream out, InputStream in) throws IOException {
+    private void sendPlant(Uri image, OutputStream out, InputStream in) throws Exception {
         InputStream imageStream = getContentResolver().openInputStream(image);
+        if (imageStream == null) {
+            throw new Exception("Problem reading image");
+        }
         byte[] outputBuffer = new byte[BUFFER_SIZE];
         while (true) {
             int message = in.read();
             if (message == -1 || (char) message != '!')
             {
-                return;
+                break;
             }
             int length = imageStream.read(outputBuffer);
             // Special case for if image size is multiple of buffer size
             if (length == -1) {
                 out.write(outputBuffer, 0, 0);
-                return;
+                break;
             }
             out.write(outputBuffer, 0, length);
             if (length < BUFFER_SIZE) {
-                return;
+                break;
             }
         }
+        imageStream.close();
     }
 }
