@@ -118,10 +118,15 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             int length = imageStream.read(outputBuffer);
+            // Special case for if image size is multiple of buffer size
             if (length == -1) {
+                out.write(outputBuffer, 0, 0);
                 return;
             }
             out.write(outputBuffer, 0, length);
+            if (length < BUFFER_SIZE) {
+                return;
+            }
         }
     }
 }

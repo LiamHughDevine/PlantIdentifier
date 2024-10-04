@@ -14,9 +14,12 @@ def send_data(client: socket.socket, data: bytes):
         client.recv(5)
         packet = bytes(data[:BUFFER_SIZE])
         if not packet:
+            client.send(bytes())
             return
         client.send(packet)
         data = data[BUFFER_SIZE:]
+        if len(packet) < BUFFER_SIZE:
+            return
 
 
 def main():
